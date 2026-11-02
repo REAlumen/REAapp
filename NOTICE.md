@@ -1,5 +1,8 @@
 # Avisos
 
+## Administrado por IA
+Este proyecto está administrado por IA: un agente (Claude Code, de Anthropic) escribe el código, las pruebas y la documentación y gestiona el trabajo, bajo la dirección de su propietario humano. Anthropic no patrocina ni respalda este proyecto.
+
 ## Sin relación con terceros
 REAlumen es un proyecto independiente. No está afiliado, patrocinado ni aprobado por Resolume ni por ninguna otra empresa. Resolume y Arena son marcas de sus respectivos titulares y se mencionan solo para describir compatibilidad y referencia funcional.
 

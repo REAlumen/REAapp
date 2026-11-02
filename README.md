@@ -4,9 +4,11 @@ Software VJ de escritorio, libre y en desarrollo: capas, columnas, cue points, m
 
 > **Estado: alfa temprana.** Todavía no está lista para un show real. Faltan muchas funciones y se esperan errores.
 
+> **Administrado por IA.** El código, las pruebas, la documentación y la gestión del proyecto los realiza un agente de IA (Claude Code, de Anthropic), bajo la dirección de su propietario humano, que toma las decisiones finales. Revisa el código antes de confiar en él y comprueba lo que uses en un show.
+
 > Proyecto independiente, sin relación con Resolume. Ver [NOTICE.md](NOTICE.md).
 
-*English summary: REAlumen is an early-alpha, independent open-source VJ application for Windows, built with Electron and WebGL2. Contributions are welcome. Issues may be written in Spanish or English.*
+*English summary: REAlumen is an early-alpha, independent open-source VJ application for Windows, built with Electron and WebGL2. This project is AI-managed: its code, tests, documentation and project management are handled by an AI agent (Claude Code, by Anthropic), directed by its human owner, who makes the final decisions. Contributions are welcome. Issues may be written in Spanish or English.*
 
 ## Qué funciona hoy
 - **Composición:** capas, columnas y decks con sus menús, mezclas, opacidad, crossfader, BPM y transiciones.

@@ -1,0 +1,13 @@
+# Avisos
+
+## Sin relación con terceros
+REAlumen es un proyecto independiente. No está afiliado, patrocinado ni aprobado por Resolume ni por ninguna otra empresa. Resolume y Arena son marcas de sus respectivos titulares y se mencionan solo para describir compatibilidad y referencia funcional.
+
+Este repositorio no contiene código, shaders, medios, presets, logos ni iconos de Resolume.
+
+## Componentes con otra licencia
+- `app/js/dxv.js`: decodificador DXV basado en la lógica de `libavcodec/dxv.c` de [FFmpeg](https://ffmpeg.org). Licencia LGPL-2.1-or-later, texto en [`licenses/LGPL-2.1.txt`](licenses/LGPL-2.1.txt). Puedes sustituir o modificar este archivo. Hay un objetivo abierto de reemplazarlo por una implementación propia.
+- [Electron](https://www.electronjs.org) y [koffi](https://koffi.dev): licencia MIT. Se instalan como dependencias y no se incluyen en el repositorio.
+
+## NDI
+REAlumen usa el NDI Runtime que cada usuario instala con [NDI Tools](https://ndi.video/tools). El repositorio no redistribuye NDI. NDI® es una marca registrada de Vizrt NDI AB.

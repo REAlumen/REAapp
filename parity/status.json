@@ -1,0 +1,23 @@
+{
+  "_nota": "Clasificación manual por título de la ayuda de Arena. Lo no listado cuenta como ausente. present = existe y se puede usar; partial = existe con menos capacidad. Ninguno de los dos afirma comportamiento idéntico.",
+  "present": [
+    "Composition", "Master Opacity", "Column Trigger", "Clear Layer", "Layer Solo", "Bypass Layer", "Select Layer Blend Mode",
+    "Video Opacity", "Clip", "Clip Handle", "Select and Preview Layer", "Assign to Crossfader Bus", "Transition Time",
+    "Crossfader", "Decks", "Deck", "Beat Indicator", "BPM Value", "BPM Divide / Multiply", "BPM Tapper",
+    "Re-Synchronize BPM clock", "Video Effects", "Bypass Effect", "Remove Effect", "Composition Panel", "Composition Name",
+    "Active Layer Panel", "Layer Name", "Active Clip Tab", "Clip Name", "Transport Mode", "Clip Transport Controls", "Timeline",
+    "Timeline Speed", "BPM Speed", "Play Forwards", "Play Backwards", "Pause Playback", "Loop", "Bounce", "Play Once",
+    "Cue Points", "Set Cue Point", "Jump to Cue Point", "Duration", "Sources", "Composition Size in Pixels", "Add Screen", "Add Slice",
+    "Add Mask", "Screen", "Delete Screen", "Enable Slice", "Slice", "Delete Slice", "Mask", "Enable Mask", "Delete Mask",
+    "Input Mask", "Add Input Mask", "Input Selection", "Output Transformation", "Name", "Select Device", "Screen Width and Height",
+    "Opacity", "Soft Edge", "Invert Mask", "Piano Mode", "Trigger mode", "Add Polygon"
+  ],
+  "partial": [
+    "Monitors", "Common", "Audio", "Video", "Audio Volume", "Layer Master", "Current Clip", "Speed", "Generator Parameter",
+    "Parameter", "Parameter Value", "Toggle Parameter", "Choice Parameter", "File Browser", "Audio and Video Effects",
+    "Clip Video", "Clip Audio", "Auto Pilot", "Autopilot", "Autopilot Action", "Transition", "Draw Mask", "Draw Input Mask",
+    "Enable Input Mask", "Delete Slice Input Mask", "Composition Settings", "Color Compensation", "Soft Edge Gamma",
+    "Camera Input Settings", "Output Width and Height", "Output X and Y Position", "Horizontal Slice Warp Points",
+    "Vertical Slice Warp Points", "Slice Point Mode", "Edit Points Mode", "Input Source", "Clip Blend Mode", "Enable Screen"
+  ]
+}

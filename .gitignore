@@ -1,0 +1,12 @@
+# Dependencias
+node_modules/
+
+# Capturas generadas con una copia propia de Arena: cada colaborador las crea localmente
+parity/oracle/
+
+# Rutas y comprobaciones personales de cada equipo
+local/
+
+# Configuración local de herramientas
+.claude/
+*.log

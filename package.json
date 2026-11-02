@@ -1,0 +1,20 @@
+{
+  "name": "realumen",
+  "version": "0.1.0",
+  "description": "Software VJ de escritorio con capas, cues y salidas mapeadas con máscaras",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/",
+    "selftest": "electron . --selftest",
+    "parity": "node tools/parity.mjs"
+  },
+  "devDependencies": {
+    "electron": "45.2.0"
+  },
+  "dependencies": {
+    "koffi": "^3.3.5"
+  },
+  "license": "SEE LICENSE IN LICENSE"
+}

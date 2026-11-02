@@ -1,12 +1,5 @@
 {
- "product": {
-  "name": "Arena",
-  "major": 7,
-  "minor": 21,
-  "micro": 0,
-  "revision": 37521
- },
- "note": "Solo nombres públicos de la API de Arena, para medir qué falta. Sin plugins de terceros ni dispositivos.",
+ "note": "Nombres usados para medir qué falta. Sin plugins de terceros ni dispositivos.",
  "blendModes": [
   "50 Add",
   "50 Burn",

@@ -13,7 +13,7 @@ export const rect = (x, y, w, h) => [{ x, y }, { x: x + w, y }, { x: x + w, y: y
 
 export function newLayer(i) {
   return {
-    // Valores por defecto declarados en los .avc de Arena: mezcla Add y opacidad 0.5 (mezcla completa).
+    // Valores por defecto declarados en los .avc de la app de referencia: mezcla Add y opacidad 0.5 (mezcla completa).
     id: uid(), name: `Layer ${i + 1}`, opacity: 0.5, volume: 1, bypass: false, solo: false,
     blend: 'Add', side: '', transition: 0, effects: [], activeClip: null,
   };
@@ -32,7 +32,7 @@ export function newSlice(n, w, h, x = 0, y = 0, sw = w, sh = h) {
   return {
     id: uid(), name: `Slice ${n}`, enabled: true, solo: false,
     input: rect(x, y, sw, sh), corners, warpMode: 'perspective', bezier: bezierFromCorners(corners), grid: null, subdivX: 0, subdivY: 0,
-    // Brillo, contraste y color centrados en 0, como en el panel de Arena.
+    // Brillo, contraste y color centrados en 0, como en el panel de la app de referencia.
     opacity: 1, brightness: 0, contrast: 0, r: 0, g: 0, b: 0, flipX: false, flipY: false, isKey: false, blackBg: false,
     edge: { enabled: false, left: 0, right: 0, top: 0, bottom: 0, gamma: 1.8 },
     inputMasks: [],

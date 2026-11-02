@@ -1,4 +1,4 @@
-// Captura cuadros de una fuente NDI con la API oficial, para comparar la salida real de Arena.
+// Captura cuadros de una fuente NDI con la API oficial, para comparar la salida real de la app de referencia.
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import zlib from 'node:zlib';
@@ -28,7 +28,7 @@ const RGBX_RGBA = 2;
 const HIGHEST = 100;
 const MIN_FRESH_FRAMES = 12;
 
-export async function connect(match = 'Arena', timeoutMs = 8000) {
+export async function connect(match, timeoutMs = 8000) {
   if (!initialize()) throw new Error('NDI no pudo iniciarse');
   const finder = findCreate({ show_local_sources: true, p_groups: null, p_extra_ips: null });
   const start = Date.now();
@@ -48,7 +48,7 @@ export async function connect(match = 'Arena', timeoutMs = 8000) {
 
 // Descarta cuadros antiguos durante `settleMs` y devuelve el siguiente como RGBA compacto.
 export async function capture(recv, settleMs = 500) {
-  // Al conectar, el primer cuadro de Arena tardó unos 4 s.
+  // Al conectar, el primer cuadro de la app de referencia tardó unos 4 s.
   const end = Date.now() + settleMs + 10000;
   const settled = Date.now() + settleMs;
   let frames = 0;

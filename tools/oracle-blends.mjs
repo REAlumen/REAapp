@@ -1,15 +1,16 @@
-// Fase 1 (`set`): en PrismaOracle crea una capa por modo de mezcla y asigna cada modo por la API de Arena.
-// Fase 2 (`map`): justo tras guardar en Arena, lee el .avc y genera parity/arena-blend-ids.json.
+// Fase 1 (`set`): en PrismaOracle crea una capa por modo de mezcla y asigna cada modo por la API de la app de referencia.
+// Fase 2 (`map`): justo tras guardar en la app de referencia, lee el .avc y genera parity/blend-ids.json.
 // Usar `map` solo si no se cambió ninguna mezcla desde que se guardó: empareja lo guardado con lo que la API lee ahora.
 // Se detiene si la composición abierta no es PrismaOracle.
 import fs from 'node:fs';
 import path from 'node:path';
+import { referenceConfig } from './reference-config.mjs';
 
-const BASE = process.env.ARENA_URL || 'http://127.0.0.1:8080/api/v1';
+const BASE = process.env.REFERENCE_URL || 'http://127.0.0.1:8080/api/v1';
 const ORACLE = 'PrismaOracle';
 const ROOT = path.resolve(import.meta.dirname, '..');
-const FILE = path.join(process.env.USERPROFILE, 'Documents/Resolume Arena/Compositions', `${ORACLE}.avc`);
-const OUT = path.join(ROOT, 'parity/arena-blend-ids.json');
+const FILE = path.join(referenceConfig().compositions, `${ORACLE}.avc`);
+const OUT = path.join(ROOT, 'parity/blend-ids.json');
 
 async function composition() {
   const res = await fetch(`${BASE}/composition`, { signal: AbortSignal.timeout(15000) });
@@ -35,7 +36,7 @@ async function setBlends() {
   const send = (i, value) => write(`/composition/layers/${i + 1}`, 'PUT', JSON.stringify({ video: { mixer: { 'Blend Mode': { value } } } }));
   const current = async (i) => (await composition()).layers[i].video.mixer['Blend Mode'].value;
   for (let i = 0; i < modes.length; i++) {
-    // Observado en Arena 7.21: al escribir un nombre puede quedar el siguiente de la lista. Se verifica leyendo.
+    // Observado en la app de referencia: al escribir un nombre puede quedar el siguiente de la lista. Se verifica leyendo.
     for (const value of [modes[i], modes[(i - 1 + modes.length) % modes.length]]) {
       await send(i, value);
       await new Promise((resolve) => setTimeout(resolve, 120));
@@ -70,7 +71,7 @@ async function mapIds() {
   console.log(`Identificadores: ${Object.keys(ids).length}/${modes.length}; conflictos: ${conflicts.length}`);
   if (conflicts.length) console.log(conflicts.join('\n'));
   if (missing.length) console.log('Sin traducir:', missing.join(', '));
-  if (layers.length !== comp.layers.length) throw new Error('El archivo no coincide con Arena: falta guardar la composición.');
+  if (layers.length !== comp.layers.length) throw new Error('El archivo no coincide con la app de referencia: falta guardar la composición.');
   fs.writeFileSync(OUT, `${JSON.stringify(ids, null, 1)}\n`);
   console.log('Escrito', OUT);
 }
@@ -78,4 +79,4 @@ async function mapIds() {
 const phase = process.argv[2];
 if (phase === 'set') await setBlends();
 else if (phase === 'map') await mapIds();
-else throw new Error('Uso: node tools/arena-oracle-blends.mjs set|map');
+else throw new Error('Uso: node tools/oracle-blends.mjs set|map');

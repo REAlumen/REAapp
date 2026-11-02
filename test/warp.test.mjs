@@ -25,7 +25,7 @@ test('una rejilla Bézier creada desde esquinas equivale a la interpolación bil
   near(p.x, 200); near(p.y, 200);
 });
 
-test('los datos de un slice real de Arena se reproducen (Slice 2 de AdvancedOutput.xml)', () => {
+test('los datos de un slice real de la app de referencia se reproducen (Slice 2 de AdvancedOutput.xml)', () => {
   const corners = rect(484.5, 0, 469.5, 1080);
   const slice = { warpMode: 'perspective', corners, input: rect(475.5, 0, 469.5, 1080) };
   near(warpPoint(slice, 1, 1).x, 954);

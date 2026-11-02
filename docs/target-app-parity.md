@@ -1,12 +1,12 @@
-# Igualdad con Resolume Arena 7.21
+# Igualdad con la app de referencia
 
 Generado por `node tools/parity.mjs` el 2026-11-02. No editar a mano.
 
-**Amplitud: 23.3 %** (presentes + la mitad de los parciales, sobre 387 temas únicos de la ayuda de Arena).
+**Amplitud: 23.3 %** (presentes + la mitad de los parciales, sobre 387 temas únicos de la ayuda de la app de referencia).
 
-**Preparación para trabajo real: sin medir.** La amplitud solo dice que algo existe. Falta compararlo con la salida y los archivos de Arena.
+**Preparación para trabajo real: sin medir.** La amplitud solo dice que algo existe. Falta compararlo con la salida y los archivos de la app de referencia.
 
-| Medida | REAlumen | Arena | % |
+| Medida | REAlumen | Referencia | % |
 |---|---|---:|---:|
 | Temas de la ayuda presentes | 71 | 387 | 18.3 |
 | Temas de la ayuda parciales | 38 | 387 | 9.8 |
@@ -17,7 +17,7 @@ Generado por `node tools/parity.mjs` el 2026-11-02. No editar a mano.
 
 La clasificación de la ayuda es manual (`parity/status.json`) y lo no listado cuenta como ausente.
 
-Efectos y fuentes salen de la API en vivo de Arena (`parity/arena-reference.json`), sin plugins de terceros ni dispositivos de este equipo.
+Efectos y fuentes salen de la API en vivo de la app de referencia (`parity/reference.json`), sin plugins de terceros ni dispositivos de este equipo.
 
 ## Modos de mezcla que faltan
 50 Add, 50 Burn, 50 Difference, 50 Distance, 50 Dodge, 50 Lighten, 50 Mask, 50 Multiply, 50 Overlay, 50 Subtract, B&W, Cube, Cut, Displace, Dissolve, JitterBug, LoRez, Meta Mix, Multi Task, Noisy, Parts, PiP, Push Down, Push Left, Push Right, Push Up, RGB, Rotate X, Rotate Y, Shift RGB, Side by Side, Static, Tile, TimeSwitcher, to Black, to Color, to White, Twitch, Wipe Ellipse, Zoom In, Zoom Out

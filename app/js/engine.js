@@ -31,7 +31,7 @@ void main(){
 const BLEND = `${HEADER}
 uniform sampler2D over; uniform int mode; uniform float opacity, gain;
 ${BLEND_GLSL}
-// Medido contra Arena: Alpha funde con la opacidad; los demás modos la usan como crossfade
+// Medido contra la app de referencia: Alpha funde con la opacidad; los demás modos la usan como crossfade
 // (0 = base, 0.5 = mezcla completa, 1 = capa superior).
 void main(){
   vec4 a=texture(tex,uv), b=texture(over,uv);

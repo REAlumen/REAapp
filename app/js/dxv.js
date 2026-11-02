@@ -1,4 +1,4 @@
-// Decodificador de paquetes DXV: devuelve la textura DXT lista para subir a la GPU, como hace Arena.
+// Decodificador de paquetes DXV: devuelve la textura DXT lista para subir a la GPU.
 // La lógica de descompresión sigue libavcodec/dxv.c de FFmpeg (LGPL-2.1-or-later);
 // este archivo se distribuye bajo esa misma licencia.
 

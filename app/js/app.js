@@ -3,7 +3,7 @@ import { isKnownFormat, migrateComposition, newComposition } from './model.js';
 import { OutputManager } from './output.js';
 import { UI } from './ui.js';
 import { AdvancedOutput } from './advanced-output.js';
-import { parseAvc } from './arena-import.js';
+import { parseAvc } from './avc-import.js';
 import { NdiClient, ProgramSender } from './ndi.js';
 
 class App {

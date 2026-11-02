@@ -1,11 +1,12 @@
-// Captura por NDI la salida real de Arena para cada modo de mezcla, sobre PrismaOracle.
+// Captura por NDI la salida real de la app de referencia para cada modo de mezcla, sobre PrismaOracle.
 // Base: degradado horizontal negro a blanco. Encima: degradado vertical negro a blanco.
 // Así cada píxel es una combinación distinta de base y superior. Genera parity/oracle/.
 import fs from 'node:fs';
 import path from 'node:path';
 import { connect, capture, close, writePng } from './ndi-capture.mjs';
+import { referenceConfig } from './reference-config.mjs';
 
-const BASE = process.env.ARENA_URL || 'http://127.0.0.1:8080/api/v1';
+const BASE = process.env.REFERENCE_URL || 'http://127.0.0.1:8080/api/v1';
 const ORACLE = 'PrismaOracle';
 const OUT = path.resolve(import.meta.dirname, '../parity/oracle');
 const GRID = 17;
@@ -26,7 +27,7 @@ async function send(method, route, body, type = 'application/json') {
 const put = (route, obj) => send('PUT', route, JSON.stringify(obj));
 const post = (route, body = '') => send('POST', route, body, 'text/plain');
 
-// Arena 7.21 puede dejar la opción siguiente al escribir un nombre: se comprueba leyendo.
+// La app de referencia puede dejar la opción siguiente al escribir un nombre: se comprueba leyendo.
 async function setChoice(route, wrap, read, options, target) {
   const i = options.indexOf(target);
   for (const value of [target, options[(i - 1 + options.length) % options.length]]) {
@@ -80,12 +81,12 @@ c = await comp();
 const opacities = [c.layers[0].video.opacity.value, c.layers[1].video.opacity.value];
 if (opacities[0] !== 1 || opacities[1] !== 1) throw new Error(`La opacidad no quedó en 100 %: ${opacities.join(', ')}`);
 
-const recv = await connect('Arena');
-const lut = { source: 'Arena 7.21 por NDI', grid: GRID, modes: {} };
+const recv = await connect(referenceConfig().ndiSource);
+const lut = { source: 'La app de referencia por NDI', grid: GRID, modes: {} };
 
 const overFrame = await capture(recv, 800);
 writePng(path.join(OUT, 'over.png'), overFrame);
-// Arena aplica algunos cambios con retraso: se espera hasta leerlos.
+// La app de referencia aplica algunos cambios con retraso: se espera hasta leerlos.
 const waitFor = async (test, label) => {
   for (let i = 0; i < 30; i++) {
     if (test(await comp())) return;
@@ -105,7 +106,7 @@ const row = (s) => Array.from({ length: GRID }, (_, i) => s[i * GRID + 0][0]);
 console.log('Base, fila superior:', lut.base.slice(0, GRID).map((p) => p[0]).join(','));
 console.log('Superior, columna izquierda:', row(lut.over).join(','));
 
-// La opacidad de capa de Arena funciona como crossfade: 0 base, 0.5 mezcla completa, 1 capa superior.
+// La opacidad de capa de la app de referencia funciona como crossfade: 0 base, 0.5 mezcla completa, 1 capa superior.
 const setOpacity = async (value) => {
   await put('/composition/layers/2', { video: { opacity: { value } } });
   await waitFor((s) => s.layers[1].video.opacity.value === value, `La opacidad no quedó en ${value}`);

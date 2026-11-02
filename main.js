@@ -124,7 +124,7 @@ function startNdiHost() {
 const FILTERS = {
   media: [{ name: 'Medios', extensions: [...MEDIA_EXT].map((e) => e.slice(1)) }],
   composition: [{ name: 'Composición REAlumen', extensions: ['realumen', 'prisma'] }],
-  avc: [{ name: 'Composición Resolume', extensions: ['avc'] }],
+  avc: [{ name: 'Composición .avc', extensions: ['avc'] }],
   xml: [{ name: 'Configuración de salida', extensions: ['xml'] }],
 };
 

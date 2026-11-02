@@ -1,4 +1,4 @@
-// Generado desde parity/arena-blend-ids.json: identificador del .avc frente al nombre que da la API de Arena.
+// Generado desde parity/blend-ids.json: identificador del .avc frente al nombre que da la API de la app de referencia.
 export const BLEND_IDS = {
  "67464110": "Push Down",
  "67464111": "Push Left",

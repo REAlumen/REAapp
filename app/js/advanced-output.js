@@ -5,7 +5,7 @@ import {
   scaleBounds, setCenter, setPointMode, setSubdivisions, stackItems, stagePoints, swapInputOutput, translate,
 } from './slice-ops.js';
 import { pointInPolygon } from './warp.js';
-import { parseAdvancedOutput } from './arena-import.js';
+import { parseAdvancedOutput } from './avc-import.js';
 import { h, select } from './ui.js';
 
 const HANDLE = 9;
@@ -180,7 +180,7 @@ export class AdvancedOutput {
             this.toolbarSlot),
           h('div', { class: 'ao-stage' }, this.stage),
           h('div', { class: 'ao-actions' },
-            h('button', { onClick: () => this.importArena() }, 'Importar AdvancedOutput.xml'),
+            h('button', { onClick: () => this.importOutputFile() }, 'Importar AdvancedOutput.xml'),
             h('span', { class: 'sep' }),
             h('button', { onClick: () => this.close(false) }, 'Cancelar'),
             h('button', { class: 'on', onClick: () => this.close(true) }, 'Guardar y cerrar'))),
@@ -405,7 +405,7 @@ export class AdvancedOutput {
         },
       }, '×') : null));
       if (!active) continue;
-      // La lista muestra arriba lo que se dibuja encima. Arrastrar una fila cambia el orden, como en Arena.
+      // La lista muestra arriba lo que se dibuja encima. Arrastrar una fila cambia el orden, como en la app de referencia.
       for (const item of [...stackItems(screen)].reverse()) {
         const isMask = !!item.points;
         out.push(this.treeItem(item, item.name, 1, () => this.edit(() => this.removeItems([item])), {
@@ -610,19 +610,19 @@ export class AdvancedOutput {
     return this.screenPanel(this.screen);
   }
 
-  async importArena() {
+  async importOutputFile() {
     const [path] = await window.native.openFiles('xml');
     if (!path) return;
     try {
       const text = await window.native.readText(path);
       this.pushUndo();
-      this.applyArena(text);
+      this.applyOutputFile(text);
     } catch (err) {
       window.alert(`No se pudo importar: ${err.message}`);
     }
   }
 
-  applyArena(text) {
+  applyOutputFile(text) {
     const { screens } = parseAdvancedOutput(text);
     for (const s of this.comp.screens) this.app.outputs.removeScreen(s);
     this.comp.screens = screens;

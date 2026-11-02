@@ -1,6 +1,6 @@
 ﻿// Prueba end-to-end dentro de la app real. Se ejecuta con `npm run selftest`.
 import { newClip, newMask, setClip, sourceFromPath, rect } from './model.js';
-import { parseAdvancedOutput, parseAvc } from './arena-import.js';
+import { parseAdvancedOutput, parseAvc } from './avc-import.js';
 import { rasterizeMasks } from './output.js';
 import { bezierFromCorners } from './warp.js';
 import { groupBounds, moveInStack, reshapeMask } from './slice-ops.js';
@@ -260,7 +260,7 @@ export async function run(options = {}) {
     const lut = JSON.parse(await window.native.readText(`${options.oracleDir}/blend-lut.json`));
     const baseClip = newClip({ type: 'image', path: `${options.oracleDir}/ideal-base.png` }, 'base');
     const overClip = newClip({ type: 'image', path: `${options.oracleDir}/ideal-over.png` }, 'over');
-    // Curva medida de la captura NDI de Arena: valor ideal i/(grid-1) frente a valor recibido.
+    // Curva medida de la captura NDI de la app de referencia: valor ideal i/(grid-1) frente a valor recibido.
     const curve = lut.base.slice(0, lut.grid).map((p) => p[0]);
     const throughNdi = (v) => {
       const pos = (v / 255) * (curve.length - 1);
@@ -298,7 +298,7 @@ export async function run(options = {}) {
       }
       const mean = sum / (n * n * 3);
       results[label] = { mean: Number(mean.toFixed(2)), max };
-      check(`Mezcla igual que Arena: ${label}`, mean <= 3, `error medio ${mean.toFixed(2)}, máximo ${max} (niveles 0-255)`);
+      check(`Mezcla igual que la app de referencia: ${label}`, mean <= 3, `error medio ${mean.toFixed(2)}, máximo ${max} (niveles 0-255)`);
     };
     for (const mode of BLEND_MODES) if (lut.modes[mode]) await compare(mode, mode, lut.opacity, lut.modes[mode]);
     for (const [key, table] of Object.entries(lut.phases)) {
@@ -696,8 +696,8 @@ export async function run(options = {}) {
     check('el editor se cierra', ao.root.hidden);
   });
 
-  // Comprobaciones contra archivos creados con Arena: solo si se indican en local/checks.json (no se publica).
-  await attempt('import Arena', async () => {
+  // Comprobaciones contra archivos creados con la app de referencia: solo si se indican en local/checks.json (no se publica).
+  await attempt('importación de referencia', async () => {
     const local = options.localChecks;
     if (!local) return;
     if (local.advancedOutput) {
@@ -718,7 +718,7 @@ export async function run(options = {}) {
       check(`${label}: BPM leído`, imported.bpm > 0, imported.bpm);
       if (e.blends) {
         const blends = imported.layers.map((l) => l.blend).join(',');
-        check(`${label}: mezclas iguales a la API de Arena`, blends === e.blends, blends);
+        check(`${label}: mezclas iguales a la API de la app de referencia`, blends === e.blends, blends);
       }
       if (e.layerName) check(`${label}: nombre de capa`, imported.layers[1].name === e.layerName, imported.layers[1].name);
       if (e.opacities) {

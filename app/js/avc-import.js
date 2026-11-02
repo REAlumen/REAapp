@@ -1,4 +1,4 @@
-// Importa la estructura de archivos de Resolume Arena 7 observados en la instalación local.
+// Importa la estructura de archivos .avc y AdvancedOutput.xml observados en la instalación local.
 // Formatos reales: Composition (.avc) y ScreenSetup (AdvancedOutput.xml).
 import { BLEND_MODES, newClip, newComposition, newLayer, newScreen, newSlice, sourceFromPath, uid, clipKey } from './model.js';
 import { bezierFromCorners } from './warp.js';
@@ -12,13 +12,13 @@ const direct = (el, name) => [...el.children].filter((c) => c.tagName === name);
 const verts = (el) => [...el.children].filter((c) => c.tagName === 'v').map((v) => ({ x: Number(v.getAttribute('x')), y: Number(v.getAttribute('y')) }));
 const paramValue = (el, name) => el?.querySelector(`:scope > Params > [name="${name}"]`)?.getAttribute('value') ?? null;
 
-// Observado con tools/arena-blend-ids.mjs: valor del archivo frente al nombre que da la API de Arena.
-import { BLEND_IDS } from './arena-blend-ids.js';
+// Observado con tools/reference-blend-ids.mjs: valor del archivo frente al nombre que da la API de la app de referencia.
+import { BLEND_IDS } from './avc-blend-ids.js';
 
 export function parseAvc(text) {
   const doc = parse(text);
   const root = doc.documentElement;
-  if (root.tagName !== 'Composition') throw new Error('No es una composición .avc de Arena');
+  if (root.tagName !== 'Composition') throw new Error('No es una composición .avc de la app de referencia');
   const comp = newComposition();
   const numLayers = Number(root.getAttribute('numLayers')) || 1;
   comp.columns = Number(root.getAttribute('numColumns')) || 9;
@@ -32,9 +32,9 @@ export function parseAvc(text) {
     const layer = newLayer(i);
     const el = layerEls.find((l) => Number(l.getAttribute('layerIndex')) === i);
     const name = el && paramValue(el, 'Name');
-    // Arena no guarda el nombre por defecto; su API lo presenta como "Layer #".
+    // La app de referencia no guarda el nombre por defecto; su API lo presenta como "Layer #".
     layer.name = (name || 'Layer #').replace('#', String(i + 1));
-    // Si el archivo no guarda la opacidad, la API de Arena la lee como 1.
+    // Si el archivo no guarda la opacidad, la API de la app de referencia la lee como 1.
     const opacity = el?.querySelector(':scope > VideoTrack > Params > [name="Opacity"]')?.getAttribute('value');
     layer.opacity = opacity != null && Number.isFinite(Number(opacity)) ? Number(opacity) : 1;
     const blendId = el?.querySelector(':scope > VideoTrack [name="Blend Mode"]')?.getAttribute('value');
@@ -60,7 +60,7 @@ export function parseAvc(text) {
         clip = newClip(made.source, name || made.name);
         stats.media++;
       } else {
-        clip = newClip({ type: 'unsupported', reason: 'Fuente interna de Arena sin importar' }, name || 'Fuente');
+        clip = newClip({ type: 'unsupported', reason: 'Fuente interna de la app de referencia sin importar' }, name || 'Fuente');
         stats.unsupported++;
       }
       const dur = clipEl.querySelector('Transport [name="Position"] ValueRange');
@@ -77,7 +77,7 @@ export function parseAvc(text) {
 
 export function parseAdvancedOutput(text) {
   const doc = parse(text);
-  if (doc.documentElement.tagName !== 'ScreenSetup') throw new Error('No es un archivo AdvancedOutput.xml de Arena');
+  if (doc.documentElement.tagName !== 'ScreenSetup') throw new Error('No es un archivo AdvancedOutput.xml de la app de referencia');
   const size = doc.querySelector('CurrentCompositionTextureSize');
   const compW = Number(size?.getAttribute('width')) || 1920;
   const compH = Number(size?.getAttribute('height')) || 1080;

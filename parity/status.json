@@ -1,5 +1,5 @@
 {
-  "_nota": "Clasificación manual por título de la ayuda de Arena. Lo no listado cuenta como ausente. present = existe y se puede usar; partial = existe con menos capacidad. Ninguno de los dos afirma comportamiento idéntico.",
+  "_nota": "Clasificación manual por título de la ayuda de la app de referencia. Lo no listado cuenta como ausente. present = existe y se puede usar; partial = existe con menos capacidad. Ninguno de los dos afirma comportamiento idéntico.",
   "present": [
     "Composition", "Master Opacity", "Column Trigger", "Clear Layer", "Layer Solo", "Bypass Layer", "Select Layer Blend Mode",
     "Video Opacity", "Clip", "Clip Handle", "Select and Preview Layer", "Assign to Crossfader Bus", "Transition Time",

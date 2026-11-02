@@ -1,6 +1,6 @@
 import { BLEND_MODES, clipKey, findClip, getClip, newClip, newComposition, newLayer, setClip, sourceFromPath, uid } from './model.js';
 import { EFFECTS, GENERATORS } from './shaders.js';
-import { parseAvc } from './arena-import.js';
+import { parseAvc } from './avc-import.js';
 import {
   clearColumn, clearLayerClips, columnInfo, duplicateColumn, duplicateLayer, insertColumn, insertLayer, removeColumns, removeLayer as removeLayerOp, setCompositionSize,
 } from './grid-ops.js';
@@ -361,7 +361,7 @@ export class UI {
     },
     h('div', {
       class: 'thumb', title: clip ? `Lanzar ${clip.name}` : '',
-      // Como en Arena: una celda vacía expulsa el clip de la capa y queda seleccionada.
+      // Como en la app de referencia: una celda vacía expulsa el clip de la capa y queda seleccionada.
       onClick: () => { if (clip) this.triggerClip(layer, clip); else this.selectEmpty(layer, column, true); },
       onMousedown: (e) => {
         if (clip && clip.trigger === 'piano') {

@@ -2,9 +2,10 @@
 // Solo lee. Si la composición abierta tiene cambios sin guardar, la capa no coincidirá y se informa.
 import fs from 'node:fs';
 import path from 'node:path';
+import { referenceConfig } from './reference-config.mjs';
 
-const BASE = process.env.ARENA_URL || 'http://127.0.0.1:8080/api/v1';
-const DIR = path.join(process.env.USERPROFILE, 'Documents/Resolume Arena/Compositions');
+const BASE = process.env.REFERENCE_URL || 'http://127.0.0.1:8080/api/v1';
+const DIR = referenceConfig().compositions;
 const comp = await (await fetch(`${BASE}/composition`)).json();
 const name = comp.name?.value;
 const candidates = fs.readdirSync(DIR).filter((f) => f.endsWith('.avc'));

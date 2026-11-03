@@ -10,12 +10,14 @@
     "Cue Points", "Set Cue Point", "Jump to Cue Point", "Duration", "Sources", "Composition Size in Pixels", "Add Screen", "Add Slice",
     "Add Mask", "Screen", "Delete Screen", "Enable Slice", "Slice", "Delete Slice", "Mask", "Enable Mask", "Delete Mask",
     "Input Mask", "Add Input Mask", "Input Selection", "Output Transformation", "Name", "Select Device", "Screen Width and Height",
-    "Opacity", "Soft Edge", "Invert Mask", "Piano Mode", "Trigger mode", "Add Polygon"
+    "Opacity", "Soft Edge", "Invert Mask", "Piano Mode", "Trigger mode", "Add Polygon",
+    "Auto Pilot", "Autopilot", "Autopilot Action", "Auto Pilot Play Forwards", "Auto Pilot Play Backwards",
+    "Auto Pilot Pause", "Auto Pilot Play Random"
   ],
   "partial": [
     "Monitors", "Common", "Audio", "Video", "Audio Volume", "Layer Master", "Current Clip", "Speed", "Generator Parameter",
     "Parameter", "Parameter Value", "Toggle Parameter", "Choice Parameter", "File Browser", "Audio and Video Effects",
-    "Clip Video", "Clip Audio", "Auto Pilot", "Autopilot", "Autopilot Action", "Transition", "Draw Mask", "Draw Input Mask",
+    "Clip Video", "Clip Audio", "Transition", "Draw Mask", "Draw Input Mask",
     "Enable Input Mask", "Delete Slice Input Mask", "Composition Settings", "Color Compensation", "Soft Edge Gamma",
     "Camera Input Settings", "Output Width and Height", "Output X and Y Position", "Horizontal Slice Warp Points",
     "Vertical Slice Warp Points", "Slice Point Mode", "Edit Points Mode", "Input Source", "Clip Blend Mode", "Enable Screen"

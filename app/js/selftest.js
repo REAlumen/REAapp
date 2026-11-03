@@ -29,6 +29,37 @@ export async function run(options = {}) {
     check('un generador pinta la composición', px[0] > 240 && px[1] < 10, px);
   });
 
+  await attempt('autopilot', async () => {
+    const a = gen('Color Sólido', [0, 1, 0]);
+    const b = gen('Color Sólido', [0, 0, 1]);
+    a.transport.duration = 0.3;
+    b.transport.duration = 0.3;
+    setClip(comp, l3.id, 6, a);
+    setClip(comp, l3.id, 7, b);
+    engine.trigger(l3, a);
+    await sleep(600);
+    check('sin autopilot en el layer, la imagen se queda', l3.activeClip === a.id, l3.activeClip);
+    l3.autopilot = 'next';
+    engine.trigger(l3, a);
+    await sleep(450);
+    check('el autopilot del layer pasa al clip siguiente al cumplirse la duración', l3.activeClip === b.id, l3.activeClip);
+    b.autopilot = 'none';
+    await sleep(600);
+    check('la acción "No hacer nada" del clip detiene el autopilot', l3.activeClip === b.id, l3.activeClip);
+    const text = (nodes) => nodes.map((n) => n.textContent).join(' ');
+    check('el panel del layer muestra los botones del autopilot', /◀◀.*OFF.*▶▶.*⤨/.test(text(app.ui.layerPanel(l3))), text(app.ui.layerPanel(l3)).slice(0, 120));
+    const clipText = text(app.ui.clipPanel(b));
+    check('el panel de un clip de imagen muestra duración y acción del autopilot', clipText.includes('Duración') && clipText.includes('Seguir al layer'), clipText.slice(0, 160));
+    b.autopilot = 'layer';
+    b.transport.duration = 'dañado';
+    await sleep(200);
+    check('una duración dañada no detiene la reproducción', engine.runtime(b).dur > 0 && !engine.runtime(b).error, engine.runtime(b).dur);
+    l3.autopilot = 'off';
+    engine.disconnect(l3);
+    setClip(comp, l3.id, 6, null);
+    setClip(comp, l3.id, 7, null);
+  });
+
   await attempt('mezcla', async () => {
     const blue = gen('Color Sólido', [0, 0, 1]);
     setClip(comp, l2.id, 0, blue);

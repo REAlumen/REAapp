@@ -1,4 +1,4 @@
-import { BLEND_MODES, clipKey, findClip, getClip, newClip, newComposition, newLayer, setClip, sourceFromPath, uid } from './model.js';
+import { BLEND_MODES, clipKey, findClip, getClip, isStill, newClip, newComposition, newLayer, setClip, sourceFromPath, uid } from './model.js';
 import { EFFECTS, GENERATORS } from './shaders.js';
 import { parseAvc } from './avc-import.js';
 import {
@@ -588,8 +588,18 @@ export class UI {
   }
 
   layerPanel(layer) {
+    const pilot = (mode, label, title) => h('button', {
+      class: (layer.autopilot || 'off') === mode ? 'on' : '', title, 'aria-pressed': (layer.autopilot || 'off') === mode,
+      onClick: () => { layer.autopilot = mode; this.renderProps(); },
+    }, label);
     return [
       h('div', { class: 'fieldrow' }, h('span', {}, 'Nombre'), h('input', { type: 'text', value: layer.name, 'aria-label': 'Nombre de capa', onChange: (e) => { layer.name = e.target.value; this.renderGrid(); } })),
+      h('h3', {}, 'Autopilot'),
+      h('div', { class: 'fieldrow' },
+        pilot('prev', '◀◀', 'Autopilot: reproduce los clips del layer en orden inverso'),
+        pilot('off', 'OFF', 'Apaga el autopilot'),
+        pilot('next', '▶▶', 'Autopilot: reproduce los clips del layer en orden'),
+        pilot('random', '⤨', 'Autopilot: reproduce los clips del layer al azar')),
       slider('Opacidad', 0, 1, () => layer.opacity, (v) => this.setLayerOpacity(layer, v)),
       slider('Volumen', 0, 1, () => layer.volume, (v) => { layer.volume = v; }),
       slider('Transición (s)', 0, 10, () => layer.transition, (v) => { layer.transition = v; }),
@@ -675,6 +685,7 @@ export class UI {
         select([['loop', 'Bucle'], ['bounce', 'Rebote'], ['once', 'Una vez']], tr.loop, (v) => { tr.loop = v; }, 'Modo de reproducción'),
         select([['timeline', 'Timeline'], ['bpm', 'BPM Sync']], tr.mode, (v) => { tr.mode = v; this.renderProps(); }, 'Sincronía'),
         timeText),
+      ...(isStill(clip.source) ? [this.durationRow(clip)] : []),
       tr.mode === 'bpm'
         ? slider('Pulsos', 1, 128, () => tr.beats, (v) => { tr.beats = v; }, 1)
         : slider('Velocidad', 0, 4, () => tr.speed, (v) => { tr.speed = v; }),
@@ -692,8 +703,13 @@ export class UI {
       h('h3', {}, 'Disparo'),
       h('div', { class: 'fieldrow' },
         select([['normal', 'Normal'], ['toggle', 'Toggle'], ['piano', 'Piano']], clip.trigger, (v) => { clip.trigger = v; }, 'Estilo de disparo'),
-        select([[0, 'Sin beat snap'], [0.25, '1/4 pulso'], [0.5, '1/2 pulso'], [1, '1 pulso'], [2, '2 pulsos'], [4, '1 compás'], [8, '2 compases'], [16, '4 compases']], clip.beatSnap, (v) => { clip.beatSnap = Number(v); }, 'Beat snap'),
-        select([['off', 'Autopilot apagado'], ['next', 'Autopilot: siguiente'], ['prev', 'Autopilot: anterior'], ['random', 'Autopilot: azar']], clip.autopilot, (v) => { clip.autopilot = v; }, 'Autopilot')),
+        select([[0, 'Sin beat snap'], [0.25, '1/4 pulso'], [0.5, '1/2 pulso'], [1, '1 pulso'], [2, '2 pulsos'], [4, '1 compás'], [8, '2 compases'], [16, '4 compases']], clip.beatSnap, (v) => { clip.beatSnap = Number(v); }, 'Beat snap')),
+      h('h3', {}, 'Autopilot'),
+      h('div', { class: 'fieldrow' }, h('span', {}, 'Al terminar'),
+        select([['layer', 'Seguir al layer'], ['none', 'No hacer nada'], ['next', 'Clip siguiente'], ['prev', 'Clip anterior'], ['random', 'Clip al azar'], ['first', 'Primer clip'], ['last', 'Último clip']],
+          clip.autopilot, (v) => { clip.autopilot = v; }, 'Acción del autopilot')),
+      ...(this.clipLayer(clip)?.autopilot || 'off') === 'off'
+        ? [h('div', { class: 'hint' }, 'Actúa cuando el autopilot del layer está encendido.')] : [],
       ...this.videoControls(clip),
     );
 
@@ -711,6 +727,27 @@ export class UI {
     }
     out.push(...this.fxChain(clip.effects));
     return out;
+  }
+
+  clipLayer(clip) {
+    const found = findClip(this.comp, clip.id);
+    return found && this.comp.layers.find((l) => l.id === found.layerId);
+  }
+
+  // Cuánto tiempo queda en pantalla una imagen antes de que el autopilot cambie de clip.
+  durationRow(clip) {
+    const tr = clip.transport;
+    const set = (v) => {
+      const d = Number(v);
+      if (Number.isFinite(d) && d > 0) tr.duration = Math.min(604800, Math.max(0.001, Math.round(d * 1000) / 1000));
+      this.renderProps();
+    };
+    return h('div', { class: 'fieldrow' }, h('span', {}, 'Duración (s)'),
+      h('input', { type: 'number', min: 0.001, step: 0.1, style: 'width:80px', value: tr.duration, 'aria-label': 'Duración del clip en segundos', onChange: (e) => set(e.target.value) }),
+      h('button', { title: 'Restar un segundo', onClick: () => set(tr.duration - 1) }, '−'),
+      h('button', { title: 'Sumar un segundo', onClick: () => set(tr.duration + 1) }, '+'),
+      h('button', { title: 'Mitad de duración', onClick: () => set(tr.duration / 2) }, '/2'),
+      h('button', { title: 'Doble de duración', onClick: () => set(tr.duration * 2) }, '×2'));
   }
 
   videoControls(clip) {

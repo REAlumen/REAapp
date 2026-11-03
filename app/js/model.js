@@ -15,16 +15,39 @@ export function newLayer(i) {
   return {
     // Valores por defecto declarados en los .avc de la app de referencia: mezcla Add y opacidad 0.5 (mezcla completa).
     id: uid(), name: `Layer ${i + 1}`, opacity: 0.5, volume: 1, bypass: false, solo: false,
-    blend: 'Add', side: '', transition: 0, effects: [], activeClip: null,
+    blend: 'Add', side: '', transition: 0, effects: [], activeClip: null, autopilot: 'off',
   };
 }
+
+// Sin medir en la app de referencia: sus clips de imagen muestran duraciones distintas según el archivo.
+export const STILL_DURATION = 5;
+
+// Fuentes sin duración propia: el clip dura lo que diga su transporte.
+export const isStill = (source) => ['image', 'generator', 'text'].includes(source.type);
 
 export function newClip(source, name) {
   return {
     id: uid(), name, source, opacity: 1, volume: 1, x: 0, y: 0, scale: 1, rotation: 0,
-    effects: [], cues: [], trigger: 'normal', beatSnap: 0, autopilot: 'off',
-    transport: { mode: 'timeline', speed: 1, dir: 1, loop: 'loop', beats: 16, in: 0, out: 1 },
+    // autopilot del clip: 'layer' sigue la dirección elegida en el layer.
+    effects: [], cues: [], trigger: 'normal', beatSnap: 0, autopilot: 'layer',
+    transport: { mode: 'timeline', speed: 1, dir: 1, loop: 'loop', beats: 16, in: 0, out: 1, duration: STILL_DURATION },
   };
+}
+
+// Columna que el autopilot dispara al terminar un clip. `columns` son las columnas con clip del layer.
+// Devuelve null si no hay que cambiar de clip.
+export function autopilotColumn(layerMode, clipAction, columns, current, random = Math.random) {
+  if (layerMode === 'off' || clipAction === 'none') return null;
+  const action = clipAction === 'layer' ? layerMode : clipAction;
+  const idx = columns.indexOf(current);
+  const n = columns.length;
+  if (idx < 0 || n < 2) return null;
+  if (action === 'next') return columns[(idx + 1) % n];
+  if (action === 'prev') return columns[(idx - 1 + n) % n];
+  if (action === 'first') return columns[0] === current ? null : columns[0];
+  if (action === 'last') return columns[n - 1] === current ? null : columns[n - 1];
+  if (action === 'random') return columns[(idx + 1 + Math.floor(random() * (n - 1))) % n];
+  return null;
 }
 
 export function newSlice(n, w, h, x = 0, y = 0, sw = w, sh = h) {
@@ -74,6 +97,18 @@ export function migrateComposition(comp) {
   // Archivos creados cuando la app se llamaba de otra forma.
   comp.format = 'realumen-1';
   if (['Prisma VJ', 'Realumen'].includes(comp.ndiOutput?.name)) comp.ndiOutput.name = 'REAlumen';
+  // Antes el autopilot solo existía en el clip; ahora el layer lo enciende y el clip elige la acción.
+  for (const layer of comp.layers || []) {
+    if (layer.autopilot) continue;
+    const clips = (comp.decks || []).flatMap((d) => Object.entries(d.clips).filter(([k]) => k.startsWith(`${layer.id}:`)).map(([, c]) => c));
+    layer.autopilot = clips.find((c) => ['next', 'prev', 'random'].includes(c.autopilot))?.autopilot || 'off';
+  }
+  for (const deck of comp.decks || []) {
+    for (const clip of Object.values(deck.clips)) {
+      if (!clip.autopilot || clip.autopilot === 'off') clip.autopilot = 'layer';
+      clip.transport.duration ??= STILL_DURATION;
+    }
+  }
   for (const screen of comp.screens || []) {
     if (!screen.device) {
       screen.device = { type: 'virtual' };

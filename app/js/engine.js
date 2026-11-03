@@ -1,4 +1,4 @@
-﻿import { BLEND_MODES, getClip } from './model.js';
+﻿import { BLEND_MODES, STILL_DURATION, autopilotColumn, getClip, isStill } from './model.js';
 import { BLEND_GLSL, EFFECTS, GENERATORS } from './shaders.js';
 import { frameAt, isDxvCodec, openMov, readPcmAudio } from './mov.js';
 
@@ -12,6 +12,12 @@ async function fileReader(url) {
   await head.arrayBuffer();
   return { readAt, total };
 }
+
+// Un valor dañado en el archivo no puede detener el transporte.
+const stillDuration = (clip) => {
+  const d = Number(clip.transport.duration);
+  return Number.isFinite(d) && d > 0 ? Math.max(0.001, d) : STILL_DURATION;
+};
 
 const VS = `#version 300 es
 in vec2 a; out vec2 uv; void main(){uv=a*.5+.5;gl_Position=vec4(a,0,1);}`;
@@ -208,6 +214,7 @@ export class Engine {
     rt = { clip, key, preview: key !== clip.id, t: 0, dur: 8, dir: clip.transport.dir || 1, tex: null, w: this.comp.width, h: this.comp.height, ready: false, error: null };
     this.runtimes.set(key, rt);
     const { source } = clip;
+    if (isStill(source)) rt.dur = stillDuration(clip);
     if (source.type === 'capture' || source.type === 'ndi') {
       rt.live = true;
       rt.dur = 1;
@@ -614,6 +621,7 @@ export class Engine {
   step(layer, clip, dt, gain, rt = this.runtime(clip)) {
     if (rt.error || rt.live) return rt;
     const tr = clip.transport;
+    if (isStill(clip.source)) rt.dur = stillDuration(clip);
     const lo = tr.in * rt.dur;
     const hi = Math.max(tr.out * rt.dur, lo + 0.001);
     const rate = tr.mode === 'bpm' ? rt.dur / Math.max(0.25, tr.beats * 60 / this.comp.bpm) : tr.speed;
@@ -639,7 +647,7 @@ export class Engine {
       }
     }
     this.stepAudio(rt, rate, dir, Math.max(0, Math.min(1, clip.volume * layer.volume * this.comp.volume * gain)));
-    if (wrapped && !rt.preview && tr.loop !== 'bounce' && clip.autopilot !== 'off') this.autopilot(layer, clip);
+    if (wrapped && !rt.preview && tr.loop !== 'bounce') this.autopilot(layer, clip);
     return rt;
   }
 
@@ -648,12 +656,9 @@ export class Engine {
     const deck = comp.decks[comp.activeDeck];
     const cols = [];
     for (let c = 0; c < comp.columns; c++) if (deck.clips[`${layer.id}:${c}`]) cols.push(c);
-    const idx = cols.findIndex((c) => deck.clips[`${layer.id}:${c}`] === clip);
-    if (idx < 0 || cols.length < 2) return;
-    const nextIdx = clip.autopilot === 'next' ? (idx + 1) % cols.length
-      : clip.autopilot === 'prev' ? (idx - 1 + cols.length) % cols.length
-        : (idx + 1 + Math.floor(Math.random() * (cols.length - 1))) % cols.length;
-    this.connect(layer, deck.clips[`${layer.id}:${cols[nextIdx]}`]);
+    const current = cols.find((c) => deck.clips[`${layer.id}:${c}`] === clip);
+    const target = autopilotColumn(layer.autopilot || 'off', clip.autopilot, cols, current);
+    if (target !== null) this.connect(layer, deck.clips[`${layer.id}:${target}`]);
   }
 
   // ---- Render ----

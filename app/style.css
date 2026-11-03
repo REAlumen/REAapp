@@ -121,10 +121,11 @@ h3 { margin: 10px 0 4px; font-size: 11px; color: var(--muted); text-transform: u
 .layerhead select { flex: 1; min-width: 0; }
 .layerhead .row.mix { align-items: flex-start; }
 .layerhead .faders { display: flex; gap: 2px; }
-.fader { display: flex; flex-direction: column; align-items: center; width: 18px; font-size: 10px; color: var(--muted); cursor: pointer; }
-.fader input { writing-mode: vertical-lr; direction: rtl; width: 16px; height: 40px; margin: 0; padding: 0; }
-.fader.audio span { color: #d2729c; }
-.fader.video span { color: #4fb38f; }
+/* Solo los faders del layer son verticales; el crossfader de la barra superior sigue horizontal. */
+.layerhead .fader { display: flex; flex-direction: column; align-items: center; width: 18px; font-size: 10px; color: var(--muted); cursor: pointer; }
+.layerhead .fader input { writing-mode: vertical-lr; direction: rtl; width: 16px; height: 40px; margin: 0; padding: 0; }
+.layerhead .fader.audio span { color: #d2729c; }
+.layerhead .fader.video span { color: #4fb38f; }
 .cell.folded { height: 24px; }
 .cell.folded .thumb { display: none; }
 .ao-comp { color: var(--muted); font-weight: 400; }

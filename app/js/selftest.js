@@ -85,6 +85,8 @@ export async function run(options = {}) {
     l2.master = 1;
     app.ui.renderGrid();
     const head = [...document.querySelectorAll('.layerhead')].find((el) => el.textContent.includes(l2.name));
+    const xf = document.querySelector('#topbar input[type=range]');
+    check('el crossfader A/B sigue horizontal', xf && xf.getBoundingClientRect().width > xf.getBoundingClientRect().height * 2, xf && `${xf.getBoundingClientRect().width}x${xf.getBoundingClientRect().height}`);
     check('la cabecera del layer tiene los faders M, A y V', head && head.querySelectorAll('.fader input[type=range]').length === 3 && /M\s*A\s*V/.test(head.querySelector('.faders').textContent), head?.querySelector('.faders')?.textContent);
   });
 

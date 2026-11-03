@@ -35,7 +35,9 @@ Hecho: menús de Columna y Capa (nueva, insertar, duplicar, renombrar, vaciar, q
 Falta: grupos de capas, Mask Mode, New Mixer, menús Deck, Group, Clip, Shortcuts y View, y frame rate y profundidad de color configurables.
 Autopilot hecho desde el video del usuario: el layer elige anterior, apagado, siguiente o azar y cada clip elige su acción al terminar; las imágenes, generadores y textos tienen duración propia.
 Sin medir: la duración inicial de una imagen (se usan 5 s; en la app de referencia se vieron 3,1 s y 16 s) y cómo la guarda el `.avc`.
-Falta en los paneles, visto en el mismo video: volumen en dB y paneo del layer, Auto Size, tipo de alfa y modo de mezcla del clip, y Behaviour y Curve del crossfader.
+Faders M, A y V en la cabecera de cada layer, y volumen en dB y paneo en el layer y en cada clip con audio, hechos desde el mismo video.
+Sin medir: el rango real de volumen y paneo de la app de referencia (aquí 0 a 1 en volumen, de −∞ a 0 dB, y −1 a 1 en paneo) y si su Fader Start sigue al Master o al fader V.
+Falta en los paneles, visto en el mismo video: Auto Size, tipo de alfa y modo de mezcla del clip, y Behaviour y Curve del crossfader.
 
 ## 8. Rendimiento
 NDI a 60 fps entrega 17,5 cuadros nuevos/s por la copia entre procesos. 4K a 60 fps no alcanza por clip. Medir con shows reales antes de decidir si pasar el motor a código nativo.

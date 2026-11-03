@@ -1,4 +1,4 @@
-﻿import { BLEND_MODES, STILL_DURATION, autopilotColumn, getClip, isStill } from './model.js';
+﻿import { BLEND_MODES, STILL_DURATION, audioLevels, autopilotColumn, getClip, isStill, layerOpacity } from './model.js';
 import { BLEND_GLSL, EFFECTS, GENERATORS } from './shaders.js';
 import { frameAt, isDxvCodec, openMov, readPcmAudio } from './mov.js';
 
@@ -330,7 +330,25 @@ export class Engine {
   }
 
   // Mantiene la voz alineada con el transporte: se reinicia si hay salto o cambio de velocidad.
-  stepAudio(rt, rate, dir, volume) {
+  // El audio de un <video> solo pasa por Web Audio cuando hace falta panear: así un fallo no lo silencia de entrada.
+  panMedia(rt, pan) {
+    if (!rt.panner && pan === 0) return;
+    if (!rt.panner) {
+      try {
+        this.audio ??= new AudioContext();
+        const src = this.audio.createMediaElementSource(rt.media);
+        rt.panner = this.audio.createStereoPanner();
+        src.connect(rt.panner).connect(this.audio.destination);
+      } catch (err) {
+        rt.panner = { pan: { value: 0 }, failed: err.message };
+        console.warn('Paneo no disponible:', err.message);
+      }
+    }
+    rt.panner.pan.value = pan;
+    if (this.audio?.state === 'suspended') this.audio.resume();
+  }
+
+  stepAudio(rt, rate, dir, volume, pan = 0) {
     if (!rt.audioBuffer) return;
     const now = this.audio.currentTime;
     const v = rt.voice;
@@ -340,13 +358,15 @@ export class Engine {
       this.stopAudio(rt);
       const src = this.audio.createBufferSource();
       const gain = this.audio.createGain();
+      const panner = this.audio.createStereoPanner();
       src.buffer = rt.audioBuffer;
       src.playbackRate.value = rate;
-      src.connect(gain).connect(this.audio.destination);
+      src.connect(gain).connect(panner).connect(this.audio.destination);
       src.start(0, Math.min(rt.t, rt.audioBuffer.duration));
-      rt.voice = { src, gain, t0: rt.t, at: now, rate };
+      rt.voice = { src, gain, panner, t0: rt.t, at: now, rate };
     }
     rt.voice.gain.gain.value = volume;
+    rt.voice.panner.pan.value = pan;
     if (this.audio.state === 'suspended') this.audio.resume();
   }
 
@@ -634,9 +654,11 @@ export class Engine {
       else if (tr.loop === 'bounce') { rt.dir = -rt.dir; rt.t = Math.min(hi, Math.max(lo, rt.t)); }
       else rt.t = Math.min(hi - 0.001, Math.max(lo, rt.t));
     }
+    const levels = audioLevels(this.comp, layer, clip, gain);
     if (rt.media && rt.ready) {
       const m = rt.media;
-      m.volume = Math.max(0, Math.min(1, clip.volume * layer.volume * this.comp.volume * gain));
+      m.volume = levels.volume;
+      this.panMedia(rt, levels.pan);
       if (dir > 0 && rate > 0) {
         m.playbackRate = Math.min(16, Math.max(0.0625, rate));
         if (m.paused) m.play().catch(() => {});
@@ -646,7 +668,7 @@ export class Engine {
         if (Math.abs(m.currentTime - rt.t) > 1 / 30 && !m.seeking) m.currentTime = rt.t;
       }
     }
-    this.stepAudio(rt, rate, dir, Math.max(0, Math.min(1, clip.volume * layer.volume * this.comp.volume * gain)));
+    this.stepAudio(rt, rate, dir, levels.volume, levels.pan);
     if (wrapped && !rt.preview && tr.loop !== 'bounce') this.autopilot(layer, clip);
     return rt;
   }
@@ -800,7 +822,7 @@ export class Engine {
       if (visible && gain > 0) {
         const next = this.acquire();
         this.use(this.program('blend', BLEND), next, {
-          tex: base, over: tex, mode: Math.max(0, BLEND_MODES.indexOf(layer.blend)), opacity: layer.opacity, gain,
+          tex: base, over: tex, mode: Math.max(0, BLEND_MODES.indexOf(layer.blend)), opacity: layerOpacity(layer), gain,
         });
         this.release(base);
         base = next;

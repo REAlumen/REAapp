@@ -1,4 +1,4 @@
-import { BLEND_MODES, clipKey, findClip, getClip, isStill, newClip, newComposition, newLayer, setClip, sourceFromPath, uid } from './model.js';
+import { BLEND_MODES, clipKey, findClip, getClip, isStill, layerOpacity, newClip, newComposition, newLayer, setClip, sourceFromPath, toDb, uid } from './model.js';
 import { EFFECTS, GENERATORS } from './shaders.js';
 import { parseAvc } from './avc-import.js';
 import {
@@ -21,8 +21,8 @@ export function h(tag, props = {}, ...kids) {
   return el;
 }
 
-export function slider(label, min, max, get, set, step) {
-  const fmt = (v) => (Math.abs(max - min) > 20 ? Number(v).toFixed(0) : Number(v).toFixed(2));
+export function slider(label, min, max, get, set, step, format) {
+  const fmt = format ? (v) => format(Number(v)) : (v) => (Math.abs(max - min) > 20 ? Number(v).toFixed(0) : Number(v).toFixed(2));
   const out = h('output', {}, fmt(get()));
   const input = h('input', {
     type: 'range', min, max, step: step ?? (max - min) / 500, value: get(), 'aria-label': label,
@@ -313,22 +313,41 @@ export class UI {
         h('button', { title: 'Desconectar clip', onClick: () => { this.engine.disconnect(layer); this.renderGrid(); } }, 'X'),
         toggle('bypass', 'B', 'Bypass', 'warn'), toggle('solo', 'S', 'Solo'),
         sideBtn('A'), sideBtn('B')),
-      layer.folded ? null : h('div', { class: 'row' },
-        select(BLEND_MODES.map((b) => [b, b]), layer.blend, (v) => { layer.blend = v; this.renderProps(); }, `Mezcla de ${layer.name}`)),
-      layer.folded ? null : h('input', { type: 'range', min: 0, max: 1, step: 0.01, value: layer.opacity, 'aria-label': `Opacidad de ${layer.name}`, onInput: (e) => this.setLayerOpacity(layer, Number(e.target.value)) }));
+      layer.folded ? null : h('div', { class: 'row mix' },
+        select(BLEND_MODES.map((b) => [b, b]), layer.blend, (v) => { layer.blend = v; this.renderProps(); }, `Mezcla de ${layer.name}`),
+        h('div', { class: 'faders' },
+          this.fader(layer, 'master', 'M', 'Master: opacidad y volumen juntos', ''),
+          this.fader(layer, 'volume', 'A', 'Audio: volumen', 'audio'),
+          this.fader(layer, 'opacity', 'V', 'Video: opacidad', 'video'))));
+  }
+
+  fader(layer, key, label, title, cls) {
+    return h('label', { class: `fader ${cls}`, title: `${title}. Doble clic: al máximo` },
+      h('input', {
+        type: 'range', min: 0, max: 1, step: 0.01, value: layer[key], 'aria-label': `${title} de ${layer.name}`,
+        onInput: (e) => this.setLayerFader(layer, key, Number(e.target.value)),
+        onDblclick: (e) => { e.target.value = 1; this.setLayerFader(layer, key, 1); },
+      }),
+      h('span', {}, label));
   }
 
   setLayerOpacity(layer, value) {
-    // Fader Start: al subir desde 0 lanza el primer clip; al llegar a 0 lo expulsa.
-    if (layer.faderStart) {
-      if (layer.opacity === 0 && value > 0 && !layer.activeClip) {
+    this.setLayerFader(layer, 'opacity', value);
+  }
+
+  setLayerFader(layer, key, value) {
+    // Fader Start: al subir la imagen desde 0 lanza el primer clip; al llegar a 0 lo expulsa.
+    const was = layerOpacity(layer);
+    layer[key] = value;
+    const now = layerOpacity(layer);
+    if (layer.faderStart && key !== 'volume') {
+      if (was === 0 && now > 0 && !layer.activeClip) {
         for (let c = 0; c < this.comp.columns; c++) {
           const clip = getClip(this.comp, layer.id, c);
           if (clip) { this.engine.trigger(layer, clip); break; }
         }
-      } else if (value === 0 && layer.activeClip) this.engine.disconnect(layer);
+      } else if (now === 0 && layer.activeClip) this.engine.disconnect(layer);
     }
-    layer.opacity = value;
     this.renderGridSoon();
   }
 
@@ -600,8 +619,13 @@ export class UI {
         pilot('off', 'OFF', 'Apaga el autopilot'),
         pilot('next', '▶▶', 'Autopilot: reproduce los clips del layer en orden'),
         pilot('random', '⤨', 'Autopilot: reproduce los clips del layer al azar')),
+      h('h3', {}, 'Layer'),
+      slider('Master', 0, 1, () => layer.master, (v) => this.setLayerFader(layer, 'master', v)),
+      h('h3', {}, 'Audio'),
+      slider('Volumen', 0, 1, () => layer.volume, (v) => this.setLayerFader(layer, 'volume', v), undefined, toDb),
+      slider('Paneo', -1, 1, () => layer.pan, (v) => { layer.pan = v; }),
+      h('h3', {}, 'Video'),
       slider('Opacidad', 0, 1, () => layer.opacity, (v) => this.setLayerOpacity(layer, v)),
-      slider('Volumen', 0, 1, () => layer.volume, (v) => { layer.volume = v; }),
       slider('Transición (s)', 0, 10, () => layer.transition, (v) => { layer.transition = v; }),
       h('div', { class: 'fieldrow' }, h('span', {}, 'Mezcla'), select(BLEND_MODES.map((b) => [b, b]), layer.blend, (v) => { layer.blend = v; }, 'Modo de mezcla')),
       h('div', { class: 'fieldrow' },
@@ -751,10 +775,15 @@ export class UI {
   }
 
   videoControls(clip) {
+    const audio = !isStill(clip.source);
     return [
+      ...(audio ? [
+        h('h3', {}, 'Audio del clip'),
+        slider('Volumen', 0, 1, () => clip.volume, (v) => { clip.volume = v; }, undefined, toDb),
+        slider('Paneo', -1, 1, () => clip.pan ?? 0, (v) => { clip.pan = v; }),
+      ] : []),
       h('h3', {}, 'Video'),
       slider('Opacidad', 0, 1, () => clip.opacity, (v) => { clip.opacity = v; }),
-      slider('Volumen', 0, 1, () => clip.volume, (v) => { clip.volume = v; }),
       slider('Posición X', -this.comp.width, this.comp.width, () => clip.x, (v) => { clip.x = v; }),
       slider('Posición Y', -this.comp.height, this.comp.height, () => clip.y, (v) => { clip.y = v; }),
       slider('Escala', 0, 5, () => clip.scale, (v) => { clip.scale = v; }),

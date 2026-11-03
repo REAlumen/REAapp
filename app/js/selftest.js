@@ -78,6 +78,14 @@ export async function run(options = {}) {
     const off = engine.readPixel(960, 540);
     check('bypass oculta la capa', off[2] < 10, off);
     l2.bypass = false;
+    l2.master = 0;
+    await sleep(100);
+    const noMaster = engine.readPixel(960, 540);
+    check('el Master del layer en 0 oculta la capa', noMaster[2] < 10, noMaster);
+    l2.master = 1;
+    app.ui.renderGrid();
+    const head = [...document.querySelectorAll('.layerhead')].find((el) => el.textContent.includes(l2.name));
+    check('la cabecera del layer tiene los faders M, A y V', head && head.querySelectorAll('.fader input[type=range]').length === 3 && /M\s*A\s*V/.test(head.querySelector('.faders').textContent), head?.querySelector('.faders')?.textContent);
   });
 
   await attempt('crossfader', async () => {
@@ -161,6 +169,15 @@ export async function run(options = {}) {
       // El audio se carga aparte y puede tardar más que la imagen.
       for (let i = 0; i < 30 && rt.hasAudio && !rt.voice && !rt.audioError; i++) await sleep(100);
       if (rt.audioBuffer || rt.audioError) check(`DXV ${label}: audio`, rt.audioBuffer && !rt.audioError && rt.voice, `${rt.audioError || ''} ${rt.audioBuffer?.duration?.toFixed(2)}s ${rt.audioBuffer?.sampleRate}Hz`);
+      if (rt.voice) {
+        clip.pan = 0.5;
+        l3.pan = 0.25;
+        clip.volume = 0.5;
+        await sleep(100);
+        const v = rt.voice;
+        check(`DXV ${label}: el volumen y el paneo del clip llegan al audio`, Math.abs(v.panner.pan.value - 0.75) < 0.01 && Math.abs(v.gain.gain.value - 0.5) < 0.01, `pan ${v.panner.pan.value} vol ${v.gain.gain.value}`);
+        l3.pan = 0;
+      }
       check(`DXV ${label}: miniatura`, !!rt.thumb);
       await window.native.selftestShot(`dxv-${label}.png`);
       engine.disconnect(l3);

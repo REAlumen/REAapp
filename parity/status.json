@@ -12,10 +12,10 @@
     "Input Mask", "Add Input Mask", "Input Selection", "Output Transformation", "Name", "Select Device", "Screen Width and Height",
     "Opacity", "Soft Edge", "Invert Mask", "Piano Mode", "Trigger mode", "Add Polygon",
     "Auto Pilot", "Autopilot", "Autopilot Action", "Auto Pilot Play Forwards", "Auto Pilot Play Backwards",
-    "Auto Pilot Pause", "Auto Pilot Play Random"
+    "Auto Pilot Pause", "Auto Pilot Play Random", "Layer Master", "Audio Volume"
   ],
   "partial": [
-    "Monitors", "Common", "Audio", "Video", "Audio Volume", "Layer Master", "Current Clip", "Speed", "Generator Parameter",
+    "Monitors", "Common", "Audio", "Video", "Current Clip", "Speed", "Generator Parameter",
     "Parameter", "Parameter Value", "Toggle Parameter", "Choice Parameter", "File Browser", "Audio and Video Effects",
     "Clip Video", "Clip Audio", "Transition", "Draw Mask", "Draw Input Mask",
     "Enable Input Mask", "Delete Slice Input Mask", "Composition Settings", "Color Compensation", "Soft Edge Gamma",

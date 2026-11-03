@@ -2,14 +2,14 @@
 
 Generado por `node tools/parity.mjs` el 2026-11-03. No editar a mano.
 
-**Amplitud: 24.7 %** (presentes + la mitad de los parciales, sobre 387 temas únicos de la ayuda de la app de referencia).
+**Amplitud: 24.9 %** (presentes + la mitad de los parciales, sobre 387 temas únicos de la ayuda de la app de referencia).
 
 **Preparación para trabajo real: sin medir.** La amplitud solo dice que algo existe. Falta compararlo con la salida y los archivos de la app de referencia.
 
 | Medida | REAlumen | Referencia | % |
 |---|---|---:|---:|
-| Temas de la ayuda presentes | 78 | 387 | 20.2 |
-| Temas de la ayuda parciales | 35 | 387 | 9.0 |
+| Temas de la ayuda presentes | 80 | 387 | 20.7 |
+| Temas de la ayuda parciales | 33 | 387 | 8.5 |
 | Modos de mezcla con el mismo nombre | 18 | 59 | 30.5 |
 | Efectos de video con el mismo nombre | 17 | 110 | 15.5 |
 | Fuentes con el mismo nombre | 10 | 21 | 47.6 |

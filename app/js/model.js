@@ -15,9 +15,24 @@ export function newLayer(i) {
   return {
     // Valores por defecto declarados en los .avc de la app de referencia: mezcla Add y opacidad 0.5 (mezcla completa).
     id: uid(), name: `Layer ${i + 1}`, opacity: 0.5, volume: 1, bypass: false, solo: false,
-    blend: 'Add', side: '', transition: 0, effects: [], activeClip: null, autopilot: 'off',
+    blend: 'Add', side: '', transition: 0, effects: [], activeClip: null, autopilot: 'off', master: 1, pan: 0,
   };
 }
+
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, Number.isFinite(v) ? v : 0));
+
+// El Master del layer ajusta a la vez la opacidad (fader V) y el volumen (fader A).
+export const layerOpacity = (layer) => clamp(layer.opacity * (layer.master ?? 1), 0, 1);
+
+export function audioLevels(comp, layer, clip, gain = 1) {
+  return {
+    volume: clamp(clip.volume * layer.volume * (layer.master ?? 1) * comp.volume * gain, 0, 1),
+    pan: clamp((clip.pan ?? 0) + (layer.pan ?? 0), -1, 1),
+  };
+}
+
+// Volumen lineal mostrado en decibelios, como en los paneles de la app de referencia.
+export const toDb = (v) => (v <= 0 ? '-∞ dB' : `${(20 * Math.log10(v)).toFixed(1)} dB`);
 
 // Sin medir en la app de referencia: sus clips de imagen muestran duraciones distintas según el archivo.
 export const STILL_DURATION = 5;
@@ -27,7 +42,7 @@ export const isStill = (source) => ['image', 'generator', 'text'].includes(sourc
 
 export function newClip(source, name) {
   return {
-    id: uid(), name, source, opacity: 1, volume: 1, x: 0, y: 0, scale: 1, rotation: 0,
+    id: uid(), name, source, opacity: 1, volume: 1, pan: 0, x: 0, y: 0, scale: 1, rotation: 0,
     // autopilot del clip: 'layer' sigue la dirección elegida en el layer.
     effects: [], cues: [], trigger: 'normal', beatSnap: 0, autopilot: 'layer',
     transport: { mode: 'timeline', speed: 1, dir: 1, loop: 'loop', beats: 16, in: 0, out: 1, duration: STILL_DURATION },
@@ -99,6 +114,8 @@ export function migrateComposition(comp) {
   if (['Prisma VJ', 'Realumen'].includes(comp.ndiOutput?.name)) comp.ndiOutput.name = 'REAlumen';
   // Antes el autopilot solo existía en el clip; ahora el layer lo enciende y el clip elige la acción.
   for (const layer of comp.layers || []) {
+    layer.master ??= 1;
+    layer.pan ??= 0;
     if (layer.autopilot) continue;
     const clips = (comp.decks || []).flatMap((d) => Object.entries(d.clips).filter(([k]) => k.startsWith(`${layer.id}:`)).map(([, c]) => c));
     layer.autopilot = clips.find((c) => ['next', 'prev', 'random'].includes(c.autopilot))?.autopilot || 'off';
@@ -107,6 +124,7 @@ export function migrateComposition(comp) {
     for (const clip of Object.values(deck.clips)) {
       if (!clip.autopilot || clip.autopilot === 'off') clip.autopilot = 'layer';
       clip.transport.duration ??= STILL_DURATION;
+      clip.pan ??= 0;
     }
   }
   for (const screen of comp.screens || []) {

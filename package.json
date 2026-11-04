@@ -1,17 +1,37 @@
 {
   "name": "realumen",
+  "productName": "REAlumen",
   "version": "0.1.0",
   "description": "Software VJ de escritorio con capas, cues y salidas mapeadas con máscaras",
+  "homepage": "https://github.com/REAlumen/REAapp",
+  "author": "REAlumen",
   "main": "main.js",
   "private": true,
   "scripts": {
     "start": "electron .",
     "test": "node --test test/",
     "selftest": "electron . --selftest",
-    "parity": "node tools/parity.mjs"
+    "parity": "node tools/parity.mjs",
+    "dist": "electron-builder --publish never"
+  },
+  "build": {
+    "appId": "io.github.realumen",
+    "productName": "REAlumen",
+    "directories": { "output": "dist" },
+    "files": ["main.js", "preload.js", "ndi-host.js", "ndi-lib.js", "app/**", "LICENSE", "NOTICE.md", "licenses/**"],
+    "win": { "target": ["nsis"], "signAndEditExecutable": false },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "AudioVideo",
+      "maintainer": "REAlumen (https://github.com/REAlumen/REAapp)",
+      "synopsis": "Software VJ: capas, cues y salidas mapeadas"
+    },
+    "deb": { "depends": ["libgtk-3-0", "libnss3", "libasound2t64 | libasound2", "libgbm1"] }
   },
   "devDependencies": {
-    "electron": "45.2.0"
+    "electron": "45.2.0",
+    "electron-builder": "25.1.8"
   },
   "dependencies": {
     "koffi": "^3.3.5"

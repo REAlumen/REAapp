@@ -1,8 +1,8 @@
 // Proceso aparte para NDI: las llamadas a la API oficial no deben frenar la interfaz.
 // Usa el NDI Runtime instalado en el equipo (NDI Tools) a través de sus funciones NDIlib_*.
 // Prácticas de la documentación del SDK: https://docs.ndi.video/all/developing-with-ndi/sdk
-const path = require('path');
 const koffi = require('koffi');
+const { libcName, loadFirst } = require('./ndi-lib');
 
 const FOURCC_RGBX = 0x58424752; // 'RGBX': las salidas son opacas, así NDI no codifica alfa.
 const FRAME_PROGRESSIVE = 1;
@@ -25,10 +25,8 @@ const outputs = new Map();
 const send = (msg) => port?.postMessage(msg);
 
 function loadNdi() {
-  const dir = process.env.NDI_RUNTIME_DIR_V6 || process.env.NDI_RUNTIME_DIR_V5;
-  if (!dir) throw new Error('NDI Runtime no instalado. Descarga NDI Tools en ndi.video/tools');
-  const dll = koffi.load(path.join(dir, 'Processing.NDI.Lib.x64.dll'));
-  const crt = koffi.load('msvcrt.dll');
+  const dll = loadFirst((file) => koffi.load(file));
+  const crt = koffi.load(libcName());
 
   const Source = koffi.struct('NDIlib_source_t', { p_ndi_name: 'const char *', p_url_address: 'const char *' });
   const FindCreate = koffi.struct('NDIlib_find_create_t', { show_local_sources: 'bool', p_groups: 'const char *', p_extra_ips: 'const char *' });

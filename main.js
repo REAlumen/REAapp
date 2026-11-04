@@ -150,7 +150,22 @@ ipcMain.handle('save-png', async (_e, dataUrl, defaultName) => {
   fs.writeFileSync(r.filePath, Buffer.from(dataUrl.split(',')[1], 'base64'));
   return r.filePath;
 });
-ipcMain.handle('open-display-settings', () => shell.openExternal('ms-settings:display'));
+// Cada sistema tiene su propio panel de pantallas; si no se puede abrir, la interfaz lo informa.
+ipcMain.handle('open-display-settings', async () => {
+  try {
+    if (process.platform === 'win32') await shell.openExternal('ms-settings:display');
+    else if (process.platform === 'darwin') await shell.openExternal('x-apple.systempreferences:com.apple.preference.displays');
+    else {
+      const { spawn } = require('child_process');
+      const child = spawn('gnome-control-center', ['display'], { detached: true, stdio: 'ignore' });
+      await new Promise((resolve, reject) => { child.once('spawn', resolve); child.once('error', reject); });
+      child.unref();
+    }
+    return true;
+  } catch {
+    return false;
+  }
+});
 ipcMain.handle('read-text', (_e, filePath) => fs.readFileSync(filePath, 'utf8'));
 ipcMain.handle('autosave-write', (_e, text) => {
   fs.writeFileSync(path.join(app.getPath('userData'), 'autosave.realumen'), text, 'utf8');

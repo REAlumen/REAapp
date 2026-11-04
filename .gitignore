@@ -1,6 +1,9 @@
 # Dependencias
 node_modules/
 
+# Paquetes de instalación generados con npm run dist
+dist/
+
 # Capturas generadas con una copia propia de la app de referencia: cada colaborador las crea localmente
 parity/oracle/
 

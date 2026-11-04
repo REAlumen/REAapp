@@ -133,7 +133,9 @@ export class UI {
         }), comp.ndiOutput.enabled),
         h('hr', {}),
         row('Identificar pantallas', closeAnd(() => app.identifyDisplays())),
-        row('Preferencias de pantalla del sistema', closeAnd(() => window.native.openDisplaySettings())),
+        row('Preferencias de pantalla del sistema', closeAnd(async () => {
+          if (!(await window.native.openDisplaySettings())) window.alert('No se pudo abrir el panel de pantallas de este sistema. Ábrelo desde su configuración.');
+        })),
         h('hr', {}),
         row('Tarjeta de prueba', closeAnd(() => {
           const on = !comp.screens.every((s) => s.testPattern);

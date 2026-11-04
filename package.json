@@ -9,7 +9,7 @@
   "private": true,
   "scripts": {
     "start": "electron .",
-    "test": "node --test test/",
+    "test": "node --test \"test/*.test.mjs\"",
     "selftest": "electron . --selftest",
     "parity": "node tools/parity.mjs",
     "dist": "electron-builder --publish never"

@@ -27,7 +27,7 @@
       "maintainer": "REAlumen (https://github.com/REAlumen/REAapp)",
       "synopsis": "Software VJ: capas, cues y salidas mapeadas"
     },
-    "deb": { "depends": ["libgtk-3-0", "libnss3", "libasound2t64 | libasound2", "libgbm1"] }
+    "deb": { "afterInstall": "build/linux-after-install.sh", "depends": ["libgtk-3-0", "libnss3", "libasound2t64 | libasound2", "libgbm1"] }
   },
   "devDependencies": {
     "electron": "45.2.0",

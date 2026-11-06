@@ -1,0 +1,2 @@
+# Los scripts de instalación de Linux deben conservar finales de línea LF.
+*.sh text eol=lf
